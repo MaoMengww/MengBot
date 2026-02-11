@@ -9,7 +9,30 @@ import (
 )
 
 type Config struct {
+	Master MasterConfig `mapstructure:"master"`
+	Bot BotConfig `mapstructure:"bot"`
+	Prompt PromptConfig `mapstructure:"prompt"`
 }
+
+type MasterConfig struct {
+	MasterID string `mapstructure:"master_id"`
+	MasterName string `mapstructure:"master_name"`
+}
+
+type MemoryConfig struct {
+	WindowLength int `mapstructure:"window_length"`
+}
+
+type BotConfig struct {
+	Name string `mapstructure:"name"`
+	Memory MemoryConfig `mapstructure:"memory"`
+}
+
+type PromptConfig struct {
+	ChatPrompt string `mapstructure:"chat_prompt"`
+	RouterPrompt string `mapstructure:"router_prompt"`
+}
+
 
 
 var Conf Config

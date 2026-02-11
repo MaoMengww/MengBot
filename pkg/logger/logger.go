@@ -49,27 +49,27 @@ func InitLogger() {
 		zapcore.NewCore(encoder, os.Stdout, infoLevel),
 		zapcore.NewCore(
 			encoder,
-			getWriteSyncer("/data/logs/info.log"),
+			getWriteSyncer("./data/logs/info.log"),
 			infoLevel,
 		),
 		zapcore.NewCore(
 			encoder,
-			getWriteSyncer("/data/logs/debug.log"),
+			getWriteSyncer("./data/logs/debug.log"),
 			debugLevel,
 		),
 		zapcore.NewCore(
 			encoder,
-			getWriteSyncer("/data/logs/warn.log"),
+			getWriteSyncer("./data/logs/warn.log"),
 			warnLevel,
 		),
 		zapcore.NewCore(
 			encoder,
-			getWriteSyncer("/data/logs/error.log"),
+			getWriteSyncer("./data/logs/error.log"),
 			errorLevel,
 		),
 		zapcore.NewCore(
 			encoder,
-			getWriteSyncer("/data/logs/fatal.log"),	
+			getWriteSyncer("./data/logs/fatal.log"),	
 			fatalLevel,
 		),
 	}
