@@ -5,7 +5,7 @@ import (
 	"Mengbot/internal/core/graph"
 	"Mengbot/internal/core/llm"
 	"Mengbot/internal/core/memory"
-	"Mengbot/internal/core/prompt"
+	"Mengbot/internal/core/model"
 	"Mengbot/pkg/logger"
 	"context"
 	"math/rand"
@@ -34,6 +34,7 @@ func Init() {
 		logger.Errorf("初始化图灵机器人失败")
 		return
 	}
+	memory.StartDiary()
 	zero.OnMessage(zero.OnlyToMe).Handle(func(ctx *zero.Ctx) {
 		var userRole, userName string
 
@@ -50,7 +51,7 @@ func Init() {
 			userName = ctx.Event.Sender.NickName
 		}
 		time := time.Now()
-		prompt := &prompt.Message{
+		prompt := &model.Message{
 			Query:     ctx.Event.Message.String(),
 			UserRole:  userRole,
 			UserName:  userName,
@@ -64,9 +65,9 @@ func Init() {
 			ctx.Send(message.ReplyWithMessage(ctx.Event.MessageID, message.Text("呜... 脑子里突然乱糟糟的，刚才的话没听清喵！可以再说一遍吗？")))
 			return
 		}
-		memory.AppendShortMemory(ctx.Event.UserID, memory.MemoryMessage{
+		memory.AppendShortMemory(ctx.Event.UserID, model.MemoryMessage{
 			Time:         time,
-			TinmeString: time.Format("2006-01-02 15:04:05"),
+			TimeString:   time.Format("2006-01-02 15:04:05"),
 			NickName:     userName,
 			Content:      ctx.Event.Message.String(),
 			ApplyName:    config.Conf.Bot.Name,

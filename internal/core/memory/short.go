@@ -2,31 +2,50 @@ package memory
 
 import (
 	"Mengbot/config"
-	"time"
+	"Mengbot/internal/core/model"
+	"sync"
 )
 
-var (
-	ShortMemory = map[int64][]MemoryMessage{}
-)
+var Store sync.Map
 
-func GetShortMemory(key int64) []MemoryMessage {
-	return ShortMemory[key]
-}
-
-type MemoryMessage struct {
-	Time time.Time
-	TinmeString string
-	NickName string
-	Content  string
-
-	ApplyName string
-	ApplyContent string
-}
-
-func AppendShortMemory(key int64, message MemoryMessage) {
-	windowLenth := len(ShortMemory[key])
-	if windowLenth >= config.Conf.Bot.Memory.WindowLength {
-		ShortMemory[key] = ShortMemory[key][1:]
+// GetShortMemory 获取短期记忆（返回深拷贝，绝对安全）
+func GetShortMemory(userId int64) []model.MemoryMessage {
+	value, ok := Store.Load(userId)
+	if !ok {
+		return nil
 	}
-	ShortMemory[key] = append(ShortMemory[key], message)
+	userMem := value.(*model.UserMemory)
+
+	userMem.Mu.Lock()
+	defer userMem.Mu.Unlock()
+
+	// 如果直接返回 userMem.Messages，外层读取时会发生并发冲突
+	if len(userMem.Messages) == 0 {
+		return nil
+	}
+
+	result := make([]model.MemoryMessage, len(userMem.Messages))
+	copy(result, userMem.Messages)
+
+	return result
+}
+
+// AppendShortMemory 追加记忆
+func AppendShortMemory(userId int64, message model.MemoryMessage) {
+	// 1. 原子性加载或创建 (LoadOrStore)
+	actual, _ := Store.LoadOrStore(userId, &model.UserMemory{
+		Messages: make([]model.MemoryMessage, 0, config.Conf.Bot.Memory.WindowLength),
+	})
+	userMem := actual.(*model.UserMemory)
+
+	// 2. 加锁写入
+	userMem.Mu.Lock()
+	defer userMem.Mu.Unlock()
+
+	windowLen := config.Conf.Bot.Memory.WindowLength
+
+	if len(userMem.Messages) >= windowLen {
+		userMem.Messages = userMem.Messages[1:]
+	}
+	userMem.Messages = append(userMem.Messages, message)
 }

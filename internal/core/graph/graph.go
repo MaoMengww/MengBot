@@ -1,18 +1,18 @@
 package graph
 
 import (
-	"Mengbot/internal/core/prompt"
+	"Mengbot/internal/core/model"
 	"Mengbot/pkg/logger"
 	"context"
 
 	"github.com/cloudwego/eino/compose"
 )
 
-func NewGraph() *compose.Graph[*prompt.Message, string] {
-	return compose.NewGraph[*prompt.Message, string]()
+func NewGraph() *compose.Graph[*model.Message, string] {
+	return compose.NewGraph[*model.Message, string]()
 }
 
-func GraphBotInit(ctx context.Context) *compose.Runnable[*prompt.Message, string] {
+func GraphBotInit(ctx context.Context) *compose.Runnable[*model.Message, string] {
 	g := NewGraph()
 	// 添加路由节点
 	routerLambda := NewRouterLambda()

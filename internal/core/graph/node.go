@@ -2,11 +2,10 @@ package graph
 
 import (
 	"Mengbot/internal/core/llm"
-	"Mengbot/internal/core/prompt"
+	"Mengbot/internal/core/model"
 	"Mengbot/pkg/logger"
 	"Mengbot/plugins"
 	"context"
-	"strings"
 
 	"github.com/cloudwego/eino/components/tool"
 	"github.com/cloudwego/eino/compose"
@@ -18,21 +17,12 @@ import (
 主要用途为减少token消耗
 */
 func NewRouterLambda() *compose.Lambda {
-	router := compose.InvokableLambda(func(ctx context.Context, input *prompt.Message) (*prompt.Message, error) {
-		messages := input.BuildRouterPrompt(ctx)
-		resp, err := llm.RouterModel.Generate(ctx, messages)
+	router := compose.InvokableLambda(func(ctx context.Context, input *model.Message) (*model.Message, error) {
+		// 调用路由模型
+		input, err := llm.CallRouter(ctx, input)
 		if err != nil {
-			logger.Error(err)
 			return nil, err
 		}
-		logger.Infof("回答用户(router): %s, 输入消耗token:%d(缓存命中:%d), 输出消耗token:%d, 共计消耗token:%d",
-			input.UserName,
-			resp.ResponseMeta.Usage.PromptTokens,
-			resp.ResponseMeta.Usage.PromptTokenDetails.CachedTokens,
-			resp.ResponseMeta.Usage.CompletionTokens,
-			resp.ResponseMeta.Usage.TotalTokens)
-		intent := strings.TrimSpace(strings.ToUpper(resp.Content))
-		input.Strategy = intent
 		return input, nil
 	})
 	return router
@@ -42,22 +32,13 @@ func NewRouterLambda() *compose.Lambda {
 简单回答节点，主要为不需要tool工具
 */
 func NewEasyChatLambda() *compose.Lambda {
-	easyChatNode := compose.InvokableLambda(func(ctx context.Context, input *prompt.Message) (string, error) {
-		messages, err := input.BuildEasyChatPrompt(ctx)
+	easyChatNode := compose.InvokableLambda(func(ctx context.Context, input *model.Message) (string, error) {
+		// 调用聊天模型
+		resp, err := llm.CallChatModel(ctx, input)
 		if err != nil {
 			return "", err
 		}
-		resp, err := llm.ChatModel.Generate(ctx, messages)
-		if err != nil {
-			return "", err
-		}
-		logger.Infof("回答用户(easyChat): %s, 输入消耗token:%d(缓存命中:%d), 输出消耗token:%d, 共计消耗token:%d",
-			input.UserName,
-			resp.ResponseMeta.Usage.PromptTokens,
-			resp.ResponseMeta.Usage.PromptTokenDetails.CachedTokens,
-			resp.ResponseMeta.Usage.CompletionTokens,
-			resp.ResponseMeta.Usage.TotalTokens)
-		return resp.Content, nil
+		return resp, nil
 	})
 	return easyChatNode
 }
@@ -95,14 +76,14 @@ func NewComplexChatLambda(ctx context.Context) *compose.Lambda {
 		logger.Errorf("创建ReactAgent失败: %v", err)
 		return nil
 	}
-	complexChatNode := compose.InvokableLambda(func(ctx context.Context, input *prompt.Message) (string, error) {
+	complexChatNode := compose.InvokableLambda(func(ctx context.Context, input *model.Message) (string, error) {
 		var agent *react.Agent
 		if input.UserRole == "master" {
 			agent = masterAgent
 		} else {
 			agent = UserAgent
 		}
-		messages, err := input.BuildEasyChatPrompt(ctx)
+		messages, err := llm.BuildEasyChatPrompt(ctx, input)
 		if err != nil {
 			return "", err
 		}
@@ -122,7 +103,7 @@ func NewComplexChatLambda(ctx context.Context) *compose.Lambda {
 }
 
 func NewChatBranch() *compose.GraphBranch {
-	branch := compose.NewGraphBranch(func(ctx context.Context, input *prompt.Message) (string, error) {
+	branch := compose.NewGraphBranch(func(ctx context.Context, input *model.Message) (string, error) {
 		switch input.Strategy {
 		case "COMPLEX":
 			return "complexChat", nil

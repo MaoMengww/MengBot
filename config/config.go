@@ -12,6 +12,7 @@ type Config struct {
 	Master MasterConfig `mapstructure:"master"`
 	Bot BotConfig `mapstructure:"bot"`
 	Prompt PromptConfig `mapstructure:"prompt"`
+	Pgsql PgsqlConfig `mapstructure:"pgsql"`
 }
 
 type MasterConfig struct {
@@ -28,9 +29,22 @@ type BotConfig struct {
 	Memory MemoryConfig `mapstructure:"memory"`
 }
 
+type PgsqlConfig struct {
+	Host string `mapstructure:"host"`
+	Port int `mapstructure:"port"`
+	Database string `mapstructure:"database"`
+	User string `mapstructure:"user"`
+	Password string `mapstructure:"password"`
+	TimeZone string `mapstructure:"time_zone"`
+}
+
+
+
 type PromptConfig struct {
 	ChatPrompt string `mapstructure:"chat_prompt"`
 	RouterPrompt string `mapstructure:"router_prompt"`
+	DiaryPrompt string `mapstructure:"diary_prompt"`
+	MetadataPrompt string `mapstructure:"metadata_prompt"`
 }
 
 

@@ -1,6 +1,7 @@
 services:
   db:
     image: pgvector/pgvector:pg16  # 使用带 pgvector 的镜像
+    container_name: pgsql-1
     environment:
       POSTGRES_USER: maomeng
       POSTGRES_PASSWORD: password
