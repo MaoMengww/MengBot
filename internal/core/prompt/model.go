@@ -37,7 +37,6 @@ func NewMessage(query string, history []memory.MemoryMessage, mood string, userN
 
 func (m *Message) BuildRouterPrompt(ctx context.Context) []*schema.Message {
 	routerPrompt := GetRouterPrompt()
-	fmt.Printf("routerPrompt: %s\n", routerPrompt)
 	messages := []*schema.Message{
 		schema.SystemMessage(routerPrompt),
 		schema.UserMessage(m.Query),
@@ -47,7 +46,6 @@ func (m *Message) BuildRouterPrompt(ctx context.Context) []*schema.Message {
 
 func (m *Message) BuildEasyChatPrompt(ctx context.Context) ([]*schema.Message, error) {
 	maomengPrompt := GetChatPrompt()
-	fmt.Printf("MaomengPrompt: %s\n", maomengPrompt)
 	systemTpl := maomengPrompt
 	template := prompt.FromMessages(schema.GoTemplate,
 		schema.SystemMessage(systemTpl),

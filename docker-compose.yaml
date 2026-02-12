@@ -1,0 +1,11 @@
+services:
+  db:
+    image: pgvector/pgvector:pg16  # 使用带 pgvector 的镜像
+    environment:
+      POSTGRES_USER: maomeng
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: bot_memory
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./data/pgdata:/var/lib/postgresql/data

@@ -1,6 +1,9 @@
 package memory
 
-import "Mengbot/config"
+import (
+	"Mengbot/config"
+	"time"
+)
 
 var (
 	ShortMemory = map[int64][]MemoryMessage{}
@@ -11,7 +14,8 @@ func GetShortMemory(key int64) []MemoryMessage {
 }
 
 type MemoryMessage struct {
-	Time string
+	Time time.Time
+	TinmeString string
 	NickName string
 	Content  string
 

@@ -49,13 +49,13 @@ func Init() {
 			userRole = "user"
 			userName = ctx.Event.Sender.NickName
 		}
-		time := time.Now().Format("2006-01-02 15:04:05")
+		time := time.Now()
 		prompt := &prompt.Message{
 			Query:     ctx.Event.Message.String(),
 			UserRole:  userRole,
 			UserName:  userName,
 			History:   memory.GetShortMemory(ctx.Event.UserID),
-			Time:      time,
+			Time:      time.Format("2006-01-02 15:04:05"),
 			Documents: nil,
 		}
 		resp, err := (*run).Invoke(context.Background(), prompt)
@@ -66,6 +66,7 @@ func Init() {
 		}
 		memory.AppendShortMemory(ctx.Event.UserID, memory.MemoryMessage{
 			Time:         time,
+			TinmeString: time.Format("2006-01-02 15:04:05"),
 			NickName:     userName,
 			Content:      ctx.Event.Message.String(),
 			ApplyName:    config.Conf.Bot.Name,

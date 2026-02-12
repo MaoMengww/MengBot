@@ -8,6 +8,7 @@ import (
 
 	//	"github.com/cloudwego/eino-ext/components/model/deepseek"
 	"github.com/cloudwego/eino-ext/components/model/qwen"
+	"github.com/cloudwego/eino-ext/components/embedding/dashscope"
 	"github.com/subosito/gotenv"
 )
 
@@ -15,6 +16,8 @@ var (
 	//	ChatModel *deepseek.ChatModel
 	ChatModel   *qwen.ChatModel
 	RouterModel *qwen.ChatModel
+	EmbeddingModel *dashscope.Embedder
+
 )
 
 func InitModel() {
@@ -23,10 +26,15 @@ func InitModel() {
 	if err := gotenv.Load(); err != nil {
 		logger.Fatal(err)
 	}
+
+
 	apiKey := os.Getenv("API_KEY")
 	baseUrl := os.Getenv("BASE_URL")
 	modelName := os.Getenv("MODEL_NAME")
 	routerModelName := os.Getenv("ROUTER_MODEL_NAME")
+	rerankModelName := os.Getenv("RERANK_MODEL_NAME")
+
+
 	if apiKey == "" || baseUrl == "" || modelName == "" || routerModelName == "" {
 		panic("API_KEY or BASE_URL or MODEL_NAME or ROUTER_MODEL_NAME not set")
 	}
@@ -57,6 +65,16 @@ func InitModel() {
 		logger.Fatal(err)
 	}
 	RouterModel = routerModel
+
+	//init embedding model
+	embeddingModel, err := dashscope.NewEmbedder(ctx, &dashscope.EmbeddingConfig{
+		APIKey:  apiKey,
+		Model:   rerankModelName,
+	})
+	if err != nil {
+		logger.Fatal(err)
+	}
+	EmbeddingModel = embeddingModel
 }
 
 func Ptr[T any](v T) *T {
