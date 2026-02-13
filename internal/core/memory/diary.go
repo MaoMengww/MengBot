@@ -55,9 +55,14 @@ func generateDiary() error {
 	if !ok {
 		return nil
 	}
+	value1, ok := RowStore.Load(masterId)
+	if !ok {
+		return nil
+	}
 
 	// 拿到 UserMemory 结构体指针
 	userMem := value.(*model.UserMemory)
+	rowMem := value1.(*model.UserMemory)
 
 	userMem.Mu.Lock()
 
@@ -100,9 +105,17 @@ func generateDiary() error {
 
 	//拼接文本
 	var r strings.Builder
+
+	rowMem.Mu.Lock()
+	for _, msg := range rowMem.Messages {
+		r.WriteString("\n" + msg.TimeString + " " + msg.NickName + "：" + msg.Content + "\n" + msg.ApplyName + "：" + msg.ApplyContent + "\n")
+	}
+	rowMem.Mu.Unlock()
+
 	for _, message := range historyMsg {
 		r.WriteString("\n" + message.TimeString + " " + message.NickName + "：" + message.Content + "\n" + message.ApplyName + "：" + message.ApplyContent + "\n")
 	}
+
 	today := r.String()
 
 	// 调用 LLM 生成日记
@@ -110,6 +123,7 @@ func generateDiary() error {
 	if err != nil {
 		return err
 	}
+	logger.Infof("可爱%s生成的日记内容: %s", config.Conf.Bot.Name, diaryContent)
 
 	// 调用 LLM 生成日记元数据
 	metadata, err := llm.CallMetadata(context.Background(), diaryContent)
@@ -135,7 +149,7 @@ func generateDiary() error {
 	return nil
 }
 
-func SearchDiary(chat string) ([]model.DiaryMessage, error) {
+func SearchDiary(chat string) ([]string, error) {
 	var results []model.SearchResult
 	embeddings, err := llm.CallChatEmbedding(context.Background(), chat)
 	if err != nil {
@@ -157,12 +171,12 @@ func SearchDiary(chat string) ([]model.DiaryMessage, error) {
 		return nil, nil
 	}
 
-	var diaries []model.DiaryMessage
+	var diaries []string
 	for _, result := range results {
 		if result.Score < 0.7 {
 			continue
 		}
-		diaries = append(diaries, result.DiaryMessage)
+		diaries = append(diaries, result.Content)
 	}
 	return diaries, nil
 }

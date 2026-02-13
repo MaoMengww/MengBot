@@ -2,6 +2,7 @@ package graph
 
 import (
 	"Mengbot/internal/core/llm"
+	"Mengbot/internal/core/memory"
 	"Mengbot/internal/core/model"
 	"Mengbot/pkg/logger"
 	"Mengbot/plugins"
@@ -83,7 +84,12 @@ func NewComplexChatLambda(ctx context.Context) *compose.Lambda {
 		} else {
 			agent = UserAgent
 		}
-		messages, err := llm.BuildEasyChatPrompt(ctx, input)
+		documents, err := memory.SearchDiary(input.Query)
+		if err != nil {
+			return "", err
+		}
+		input.Documents = documents
+		messages, err := llm.BuildComplexChatPrompt(ctx, input)
 		if err != nil {
 			return "", err
 		}

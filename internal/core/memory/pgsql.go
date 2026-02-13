@@ -12,15 +12,17 @@ import (
 var db *gorm.DB
 
 func InitPgsql() error {
-	dsn := fmt.Sprintf("host=%s port=%d dbname=%s user=%s password=%s time_zone=%s",
+	dsn := fmt.Sprintf("host=%s port=%d dbname=%s user=%s password=%s sslmode=%s TimeZone=%s",
 		config.Conf.Pgsql.Host,
 		config.Conf.Pgsql.Port,
 		config.Conf.Pgsql.Database,
 		config.Conf.Pgsql.User,
 		config.Conf.Pgsql.Password,
+		config.Conf.Pgsql.SSLMode,	
 		config.Conf.Pgsql.TimeZone,
 	)
-	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
+	var err error
+	db, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
 		panic(err)
 	}

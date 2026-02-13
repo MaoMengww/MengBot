@@ -8,23 +8,24 @@ var (
 
 
 type PluginRegistry struct {
-	AllMcpTool []AgentMcpTool
-	FilteredMcpTool []AgentMcpTool
+	AllMcpTool []tool.BaseTool
+	FilteredMcpTool []tool.BaseTool
 }
 
 func NewPluginRegistry() *PluginRegistry {
 	return &PluginRegistry{
-		AllMcpTool: make([]AgentMcpTool, 0),
-		FilteredMcpTool: make([]AgentMcpTool, 0),
+		AllMcpTool: make([]tool.BaseTool, 0),
+		FilteredMcpTool: make([]tool.BaseTool, 0),
 	}
 }
 
-func (r *PluginRegistry) RegisterAllMcpTool(name string, tool AgentMcpTool) {
+
+func (r *PluginRegistry) RegisterAllMcpTool(tool tool.BaseTool) {
 	r.AllMcpTool = append(r.AllMcpTool, tool)
 	r.FilteredMcpTool = append(r.FilteredMcpTool, tool)
 }
 
-func (r *PluginRegistry) RegisterFilteredMcpTool(name string, tool AgentMcpTool) {
+func (r *PluginRegistry) RegisterFilteredMcpTool(tool tool.BaseTool) {
 	r.FilteredMcpTool = append(r.FilteredMcpTool, tool)
 }
 

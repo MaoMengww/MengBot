@@ -8,8 +8,9 @@ import (
 )
 
 type UserProfile struct {
-	UserId   int64
-	NickName string
+	Id        int64           `gorm:"primaryKey"`
+	UserId    string          `gorm:"index"`
+	Profile   string          `gorm:"type:text"`
 }
 
 type UserMemory struct {

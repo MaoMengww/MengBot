@@ -6,7 +6,10 @@ import (
 	"sync"
 )
 
-var Store sync.Map
+var (
+	Store sync.Map
+	RowStore sync.Map
+)
 
 // GetShortMemory 获取短期记忆（返回深拷贝，绝对安全）
 func GetShortMemory(userId int64) []model.MemoryMessage {
@@ -36,7 +39,11 @@ func AppendShortMemory(userId int64, message model.MemoryMessage) {
 	actual, _ := Store.LoadOrStore(userId, &model.UserMemory{
 		Messages: make([]model.MemoryMessage, 0, config.Conf.Bot.Memory.WindowLength),
 	})
+	row, _ := RowStore.LoadOrStore(userId, &model.UserMemory{
+		Messages: make([]model.MemoryMessage, 0),
+	})
 	userMem := actual.(*model.UserMemory)
+	rowMem := row.(*model.UserMemory)
 
 	// 2. 加锁写入
 	userMem.Mu.Lock()
@@ -45,6 +52,7 @@ func AppendShortMemory(userId int64, message model.MemoryMessage) {
 	windowLen := config.Conf.Bot.Memory.WindowLength
 
 	if len(userMem.Messages) >= windowLen {
+		rowMem.Messages = append(rowMem.Messages, userMem.Messages[0])
 		userMem.Messages = userMem.Messages[1:]
 	}
 	userMem.Messages = append(userMem.Messages, message)

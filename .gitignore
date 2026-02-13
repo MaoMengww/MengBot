@@ -1,3 +1,5 @@
 .env
-.yaml
+config.yaml
 .yml
+data
+node_modules

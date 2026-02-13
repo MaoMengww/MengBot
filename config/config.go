@@ -13,6 +13,7 @@ type Config struct {
 	Bot BotConfig `mapstructure:"bot"`
 	Prompt PromptConfig `mapstructure:"prompt"`
 	Pgsql PgsqlConfig `mapstructure:"pgsql"`
+	MCPPath MCPPathConfig `mapstructure:"mcp_path"`
 }
 
 type MasterConfig struct {
@@ -35,13 +36,20 @@ type PgsqlConfig struct {
 	Database string `mapstructure:"database"`
 	User string `mapstructure:"user"`
 	Password string `mapstructure:"password"`
+	SSLMode string `mapstructure:"ssl_mode"`
 	TimeZone string `mapstructure:"time_zone"`
+}
+
+type MCPPathConfig struct {
+	Node string `mapstructure:"node"`
+	Bangumi string `mapstructure:"bangumi"`
 }
 
 
 
 type PromptConfig struct {
 	ChatPrompt string `mapstructure:"chat_prompt"`
+	ComplexChatPrompt string `mapstructure:"complex_chat_prompt"`
 	RouterPrompt string `mapstructure:"router_prompt"`
 	DiaryPrompt string `mapstructure:"diary_prompt"`
 	MetadataPrompt string `mapstructure:"metadata_prompt"`

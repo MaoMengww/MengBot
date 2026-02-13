@@ -18,6 +18,10 @@ func GetChatPrompt() string {
 	return config.Conf.Prompt.ChatPrompt
 }
 
+func GetComplexChatPrompt() string {
+	return config.Conf.Prompt.ComplexChatPrompt
+}
+
 func GetDiaryPrompt() string {
 	return config.Conf.Prompt.DiaryPrompt
 }
@@ -37,6 +41,30 @@ func BuildRouterPrompt(ctx context.Context, m *model.Message) []*schema.Message 
 
 func BuildEasyChatPrompt(ctx context.Context, m *model.Message) ([]*schema.Message, error) {
 	maomengPrompt := GetChatPrompt()
+	systemTpl := maomengPrompt
+	template := prompt.FromMessages(schema.GoTemplate,
+		schema.SystemMessage(systemTpl),
+		schema.UserMessage("{{.Query}}"),
+	)
+
+	formattedMessages, err := template.Format(ctx, map[string]any{
+		"Time":      m.Time,
+		"UserName":  m.UserName,
+		"UserRole":  m.UserRole,
+		"Documents": m.Documents,
+		"History":   m.History,
+		"Query":     m.Query,
+	})
+
+	if err != nil {
+		return nil, err
+	}
+	fmt.Printf("formattedMessages: %v\n", formattedMessages)
+	return formattedMessages, nil
+}
+
+func BuildComplexChatPrompt(ctx context.Context, m *model.Message) ([]*schema.Message, error) {
+	maomengPrompt := GetComplexChatPrompt()
 	systemTpl := maomengPrompt
 	template := prompt.FromMessages(schema.GoTemplate,
 		schema.SystemMessage(systemTpl),
