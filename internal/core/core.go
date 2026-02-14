@@ -62,7 +62,7 @@ func Init() {
 		resp, err := (*run).Invoke(context.Background(), prompt)
 		if err != nil {
 			logger.Errorf("聊天失败: %v", err)
-			ctx.Send(message.ReplyWithMessage(ctx.Event.MessageID, message.Text("呜... 脑子里突然乱糟糟的，刚才的话没听清喵！可以再说一遍吗？")))
+			ctx.Send(message.ReplyWithMessage(ctx.Event.MessageID, message.Text(GetRandomReapOnWrong())))
 			return
 		}
 		memory.AppendShortMemory(ctx.Event.UserID, model.MemoryMessage{
