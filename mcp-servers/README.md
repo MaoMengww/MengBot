@@ -3,7 +3,9 @@
 mcp-servers
 ├─ package.json
 ├─ pnpm-lock.yaml
-└─ src
-   └─ index.ts
+├─ src
+│  ├─ index.ts
+│  └─ types.ts
+└─ tsconfig.json
 
 ```

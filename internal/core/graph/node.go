@@ -88,6 +88,7 @@ func NewComplexChatLambda(ctx context.Context) *compose.Lambda {
 		if err != nil {
 			return "", err
 		}
+
 		input.Documents = documents
 		messages, err := llm.BuildComplexChatPrompt(ctx, input)
 		if err != nil {

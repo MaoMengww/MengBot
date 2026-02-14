@@ -32,9 +32,16 @@ func GetMetadataPrompt() string {
 
 func BuildRouterPrompt(ctx context.Context, m *model.Message) []*schema.Message {
 	routerPrompt := GetRouterPrompt()
-	messages := []*schema.Message{
+	template := prompt.FromMessages(schema.GoTemplate,
 		schema.SystemMessage(routerPrompt),
-		schema.UserMessage(m.Query),
+		schema.UserMessage("{{.Query}}"),
+	)
+	messages, err := template.Format(ctx, map[string]any{
+		"Query": m.Query,
+		"History":   m.History,
+	})
+	if err != nil {
+		return nil
 	}
 	return messages
 }
